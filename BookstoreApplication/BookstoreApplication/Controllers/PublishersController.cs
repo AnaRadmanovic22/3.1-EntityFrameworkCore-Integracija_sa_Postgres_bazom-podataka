@@ -11,25 +11,24 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class PublishersController : ControllerBase
     {
-        private readonly PublishersRepository _publishersRepository;
+        private readonly PublishersRepository publishersRepository;
 
-        public PublishersController(PublishersRepository publishersRepository)
+        public PublishersController(BookstoreContext context)
         {
-            _publishersRepository = publishersRepository;
+            publishersRepository = new PublishersRepository(context);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<List<Publisher>>> GetAll()
         {
-            List<Publisher> publishers = await _publishersRepository.GetAllAsync();
-            return Ok(publishers);
+            return Ok(await publishersRepository.GetAllAsync());
         }
 
         // GET api/publishers/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetOne(int id)
+        public async Task<ActionResult<Publisher>> GetOne(int id)
         {
-            Publisher? publisher = await _publishersRepository.GetByIdAsync(id);
+            Publisher? publisher = await publishersRepository.GetByIdAsync(id);
             if (publisher == null)
             {
                 return NotFound();
@@ -39,41 +38,38 @@ namespace BookstoreApplication.Controllers
 
         // POST api/publishers
         [HttpPost]
-        public async Task<IActionResult> Post(Publisher publisher)
+        public async Task<ActionResult<Publisher>> Post(Publisher publisher)
         {
-            Publisher createdPublisher = await _publishersRepository.AddAsync(publisher);
-            return Ok(createdPublisher);
+            Publisher createdPublisher = await publishersRepository.AddAsync(publisher);
+            return Created(string.Empty, createdPublisher);
         }
 
         // PUT api/publishers/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Publisher publisher)
+        public async Task<ActionResult<Publisher>> Put(int id, Publisher publisher)
         {
             if (id != publisher.Id)
             {
                 return BadRequest();
             }
-
-            Publisher? updatedPublisher = await _publishersRepository.UpdateAsync(publisher);
-            if (updatedPublisher == null)
-            {
+            Publisher? updatedPublisher = await publishersRepository.UpdateAsync(publisher);
+            if (updatedPublisher == null) {
                 return NotFound();
-
             }
-
-            return Ok(updatedPublisher);
+            return Ok(publisher);
         }
 
         // DELETE api/publishers/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            bool deleted = await _publishersRepository.DeleteAsync(id);
-            if (!deleted)
+            Publisher publisher = await publishersRepository.GetByIdAsync(id);
+            if (publisher == null)
             {
                 return NotFound();
             }
 
+            await publishersRepository.DeleteAsync(publisher.Id);
             return NoContent();
         }
     }
