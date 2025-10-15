@@ -1,5 +1,6 @@
 using System;
 using BookstoreApplication.Data;
+using BookstoreApplication.Mapping;
 using BookstoreApplication.Repositories;
 using BookstoreApplication.Services;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,11 @@ builder.Services.AddScoped<IBooksService, BooksService>();
 
 builder.Services.AddScoped<IPublishersRepository, PublishersRepository>();
 builder.Services.AddScoped<IPublishersService, PublishersService>();
+
+builder.Services.AddAutoMapper(cfg => {
+    cfg.AddProfile<BookProfile>();
+});
+
 
 var app = builder.Build();
 

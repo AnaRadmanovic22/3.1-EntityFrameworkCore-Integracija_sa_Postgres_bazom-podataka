@@ -1,6 +1,6 @@
-﻿using BookstoreApplication.Data;
+﻿using BookstoreApplication.DTOs;
+using BookstoreApplication.Exceptions;
 using BookstoreApplication.Models;
-using BookstoreApplication.Repositories;
 using BookstoreApplication.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,58 +18,40 @@ namespace BookstoreApplication.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Book>>> GetAll()
+        public async Task<ActionResult<List<BookDto>>> GetAll()
         {
-            return Ok(await _booksService.GetAllWithIncludesAsync());
+            var books = await _booksService.GetAllWithIncludesAsync();
+            return Ok(books);
         }
 
-        // GET api/books/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetOne(int id)
+        public async Task<ActionResult<BookDetailsDto>> GetOne(int id)
         {
-            Book? book = await _booksService.GetByIdWithIncludesAsync(id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            var book = await _booksService.GetByIdWithIncludesAsync(id);
             return Ok(book);
         }
 
-        // POST api/books
         [HttpPost]
         public async Task<ActionResult<Book>> Post(Book book)
         {
-            Book createdBook = await _booksService.AddAsync(book);
+            var createdBook = await _booksService.AddAsync(book);
             return Created(string.Empty, createdBook);
         }
 
-        // PUT api/books/5
         [HttpPut("{id}")]
         public async Task<ActionResult<Book>> Put(int id, Book book)
         {
             if (id != book.Id)
-            {
-                return BadRequest();
-            }
+                throw new BadRequestException("Book ID mismatch."); 
 
-            Book? updatedBook = await _booksService.UpdateAsync(book);
-            if (updatedBook == null)
-            {
-                return NotFound();
-            }
-
+            var updatedBook = await _booksService.UpdateAsync(book);
             return Ok(updatedBook);
         }
 
-        // DELETE api/books/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            Book book = await _booksService.GetByIdWithIncludesAsync(id);
-            if (book == null) { 
-                return NotFound();
-            }
-            await _booksService.DeleteAsync(book.Id);
+            await _booksService.DeleteAsync(id);
             return NoContent();
         }
     }
