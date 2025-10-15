@@ -1,0 +1,40 @@
+﻿using BookstoreApplication.Repositories;
+using BookstoreApplication.Models;
+
+namespace BookstoreApplication.Services
+{
+    public class AuthorsService:IAuthorsService
+    {
+        private readonly IAuthorsRepository _repository;
+
+        public AuthorsService(IAuthorsRepository repository)
+        {
+            _repository = repository;
+        }
+
+        public async Task<List<Author>> GetAllAsync()
+        {
+            return await _repository.GetAllAsync();
+        }
+
+        public async Task<Author> GetByIdAsync(int id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
+
+        public async Task<Author> AddAsync(Author author)
+        {
+            return await _repository.AddAsync(author);
+        }
+
+        public async Task<Author?> UpdateAsync(Author author)
+        {
+            return await _repository.UpdateAsync(author);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            return await _repository.DeleteAsync(id);
+        }
+    }
+}

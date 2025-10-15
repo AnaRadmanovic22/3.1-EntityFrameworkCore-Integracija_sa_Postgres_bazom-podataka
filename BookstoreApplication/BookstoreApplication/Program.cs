@@ -1,6 +1,7 @@
 using System;
 using BookstoreApplication.Data;
 using BookstoreApplication.Repositories;
+using BookstoreApplication.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,15 @@ builder.Services.AddScoped<AuthorsRepository>();
 builder.Services.AddScoped<PublishersRepository>();
 builder.Services.AddScoped<BooksRepository>();
 builder.Services.AddScoped<AwardsRepository>();
+
+builder.Services.AddScoped<IAuthorsRepository, AuthorsRepository>();
+builder.Services.AddScoped<IAuthorsService, AuthorsService>();
+
+builder.Services.AddScoped<IBooksRepository, BooksRepository>();
+builder.Services.AddScoped<IBooksService, BooksService>();
+
+builder.Services.AddScoped<IPublishersRepository, PublishersRepository>();
+builder.Services.AddScoped<IPublishersService, PublishersService>();
 
 var app = builder.Build();
 

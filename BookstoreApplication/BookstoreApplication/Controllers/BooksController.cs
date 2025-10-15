@@ -1,9 +1,8 @@
 ﻿using BookstoreApplication.Data;
 using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
+using BookstoreApplication.Services;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace BookstoreApplication.Controllers
 {
@@ -11,24 +10,24 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly BooksRepository booksRepository;
+        private readonly IBooksService _booksService;
 
-        public BooksController(BookstoreContext context)
+        public BooksController(IBooksService booksService)
         {
-            booksRepository = new BooksRepository(context);
+            _booksService = booksService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Book>>> GetAll()
         {
-            return Ok(await booksRepository.GetAllWithIncludesAsync());
+            return Ok(await _booksService.GetAllWithIncludesAsync());
         }
 
         // GET api/books/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetOne(int id)
         {
-            Book? book = await booksRepository.GetByIdWithIncludesAsync(id);
+            Book? book = await _booksService.GetByIdWithIncludesAsync(id);
             if (book == null)
             {
                 return NotFound();
@@ -40,7 +39,7 @@ namespace BookstoreApplication.Controllers
         [HttpPost]
         public async Task<ActionResult<Book>> Post(Book book)
         {
-            Book createdBook = await booksRepository.AddAsync(book);
+            Book createdBook = await _booksService.AddAsync(book);
             return Created(string.Empty, createdBook);
         }
 
@@ -53,7 +52,7 @@ namespace BookstoreApplication.Controllers
                 return BadRequest();
             }
 
-            Book? updatedBook = await booksRepository.UpdateAsync(book);
+            Book? updatedBook = await _booksService.UpdateAsync(book);
             if (updatedBook == null)
             {
                 return NotFound();
@@ -66,11 +65,11 @@ namespace BookstoreApplication.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            Book book = await booksRepository.GetByIdWithIncludesAsync(id);
+            Book book = await _booksService.GetByIdWithIncludesAsync(id);
             if (book == null) { 
                 return NotFound();
             }
-            await booksRepository.DeleteAsync(book.Id);
+            await _booksService.DeleteAsync(book.Id);
             return NoContent();
         }
     }

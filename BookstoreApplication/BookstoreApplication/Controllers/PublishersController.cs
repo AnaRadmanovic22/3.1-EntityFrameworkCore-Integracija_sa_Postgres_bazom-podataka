@@ -1,9 +1,8 @@
 ﻿using BookstoreApplication.Data;
 using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
+using BookstoreApplication.Services;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace BookstoreApplication.Controllers
 {
@@ -11,24 +10,24 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class PublishersController : ControllerBase
     {
-        private readonly PublishersRepository publishersRepository;
+        private readonly IPublishersService _publishersService;
 
-        public PublishersController(BookstoreContext context)
+        public PublishersController(IPublishersService publishersService)
         {
-            publishersRepository = new PublishersRepository(context);
+            _publishersService = publishersService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Publisher>>> GetAll()
         {
-            return Ok(await publishersRepository.GetAllAsync());
+            return Ok(await _publishersService.GetAllAsync());
         }
 
         // GET api/publishers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Publisher>> GetOne(int id)
         {
-            Publisher? publisher = await publishersRepository.GetByIdAsync(id);
+            Publisher? publisher = await _publishersService.GetByIdAsync(id);
             if (publisher == null)
             {
                 return NotFound();
@@ -40,7 +39,7 @@ namespace BookstoreApplication.Controllers
         [HttpPost]
         public async Task<ActionResult<Publisher>> Post(Publisher publisher)
         {
-            Publisher createdPublisher = await publishersRepository.AddAsync(publisher);
+            Publisher createdPublisher = await _publishersService.AddAsync(publisher);
             return Created(string.Empty, createdPublisher);
         }
 
@@ -52,7 +51,7 @@ namespace BookstoreApplication.Controllers
             {
                 return BadRequest();
             }
-            Publisher? updatedPublisher = await publishersRepository.UpdateAsync(publisher);
+            Publisher? updatedPublisher = await _publishersService.UpdateAsync(publisher);
             if (updatedPublisher == null) {
                 return NotFound();
             }
@@ -63,13 +62,13 @@ namespace BookstoreApplication.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            Publisher publisher = await publishersRepository.GetByIdAsync(id);
+            Publisher publisher = await _publishersService.GetByIdAsync(id);
             if (publisher == null)
             {
                 return NotFound();
             }
 
-            await publishersRepository.DeleteAsync(publisher.Id);
+            await _publishersService.DeleteAsync(publisher.Id);
             return NoContent();
         }
     }
