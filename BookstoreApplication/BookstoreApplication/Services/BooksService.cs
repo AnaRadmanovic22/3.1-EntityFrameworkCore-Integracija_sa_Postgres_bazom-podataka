@@ -10,11 +10,13 @@ namespace BookstoreApplication.Services
     {
         private readonly IBooksRepository _repository;
         private readonly IMapper _mapper;
+        private readonly ILogger<BooksService> _logger;
 
-        public BooksService(IBooksRepository repository, IMapper mapper)
+        public BooksService(IBooksRepository repository, IMapper mapper, ILogger<BooksService> logger)
         {
             _repository = repository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<List<BookDto>> GetAllWithIncludesAsync()
@@ -24,13 +26,20 @@ namespace BookstoreApplication.Services
         }
         public async Task<BookDetailsDto> GetByIdWithIncludesAsync(int id)
         {
+            _logger.LogInformation($"Fetching book with id {id}");
+
             var book = await _repository.GetByIdWithIncludesAsync(id);
             if (book == null) {
+                _logger.LogError($"Book with id {id} not found");
                 throw new NotFoundException(id);
             }
             return _mapper.Map<BookDetailsDto>(book);
         }
-        public async Task<Book> AddAsync(Book book){return await _repository.AddAsync(book); }
+        public async Task<Book> AddAsync(Book book)
+        {
+            _logger.LogInformation($"Adding new book: {book.Title}");
+            return await _repository.AddAsync(book); 
+        }
         public async Task<Book?> UpdateAsync(Book book)
         {
             var existing = await _repository.GetByIdWithIncludesAsync(book.Id);
